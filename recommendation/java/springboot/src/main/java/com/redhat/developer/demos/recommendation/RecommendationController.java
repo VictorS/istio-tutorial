@@ -5,12 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class RecommendationController {
 
-    private static final String RESPONSE_STRING_FORMAT = "recommendation v1 from '%s': %d\n";
+    private static final String RESPONSE_STRING_FORMAT = "recommmendation v1 from '%s': %d\n";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -31,10 +32,21 @@ public class RecommendationController {
         return hostname.replaceAll("recommendation-v\\d+-", "");
     }
 
+    // SB 1.5.X actuator does not allow subpaths on custom health checks URL/do in easy way
+    @RequestMapping("/health/ready")
+    @ResponseStatus(HttpStatus.OK)
+    public void ready() {}
+
+    // SB 1.5.X actuator does not allow subpaths on custom health checks URL/do in
+    // easy way
+    @RequestMapping("/health/live")
+    @ResponseStatus(HttpStatus.OK)
+    public void live() {}
+
     @RequestMapping("/")
     public ResponseEntity<String> getRecommendations() {
         count++;
-        logger.debug(String.format("recommendation request from %s: %d", HOSTNAME, count));
+        logger.info(String.format("recommendation request from %s: %d", HOSTNAME, count));
 
         // timeout();
 

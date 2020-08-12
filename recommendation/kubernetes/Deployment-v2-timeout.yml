@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -23,7 +23,7 @@ spec:
       - env:
         - name: JAVA_OPTIONS
           value: -Xms15m -Xmx15m -Xmn15m
-        image: quay.io/rhdevelopers/istio-tutorial-recommendation:v2-timeout
+        image: quay.io/rhdevelopers/istio-tutorial-recommendation:v2.2-timeout
         imagePullPolicy: IfNotPresent
         name: recommendation
         ports:
@@ -43,14 +43,14 @@ spec:
         livenessProbe:
           httpGet:            
             port: 8080
-            path: /health
+            path: /health/live
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 10
         readinessProbe:
           httpGet:            
             port: 8080
-            path: /health
+            path: /health/ready
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 10

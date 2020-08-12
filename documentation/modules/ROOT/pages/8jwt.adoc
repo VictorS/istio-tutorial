@@ -7,6 +7,7 @@ include::_attributes.adoc[]
 You should have NO virtualservice, destinationrule, gateway or policy (in `tutorial` namespace) `kubectl get virtualservice` `kubectl get destinationrule` `kubectl get gateway` `kubectl get policy`
 if so run:
 
+[.console-input]
 [source, bash]
 ----
 ./scripts/clean.sh
@@ -23,17 +24,19 @@ At the time of writing this chapter, only the JWT mechanism is supported.
 
 Now it is time to enable end-user authentication.
 
-The first thing you need to do is run `curl istio-ingressgateway-istio-system.$(minishift ip).nip.io` and validate that now it is still possible to communicate between all services without been authenticated.
+The first thing you need to do is run and validate that now it is still possible to communicate between all services without been authenticated.
 
-[source, bash, subs="+macros,+attributes"]
+include::curl.adoc[]
+
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
 ----
-curl http://istio-ingressgateway-istio-system.{appdomain}/{path}
-
-customer => preference => recommendation v1 from 'b4d67bcb7-7rp88': 4
+customer => preference => recommendation v1 from 'recommendation-v1-b4d67bcb7-7rp88': 4
 ----
 
 Then run:
 
+[.console-input]
 [source, bash,subs="+macros,+attributes"]
 ----
 kubectl create -f link:{github-repo}/{istiofiles-dir}/enduser-authentication-jwt.yml[istiofiles/enduser-authentication-jwt.yml]
@@ -41,17 +44,19 @@ kubectl create -f link:{github-repo}/{istiofiles-dir}/enduser-authentication-jwt
 
 Then let's run the curl again:
 
-[source, bash, subs="+macros,+attributes"]
-----
-curl http://istio-ingressgateway-istio-system.{appdomain}/{path}
+include::curl.adoc[]
 
-Origin authentication failed.%`
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+Origin authentication failed.%
 ----
 
 And now the communication is not possible because the user has not been identified (provides a valid JWT token).
 
 To get a correct token, just run next `curl` request.
 
+[.console-input]
 [source, bash]
 ----
 token=$(curl https://gist.githubusercontent.com/lordofthejars/a02485d70c99eba70980e0a92b2c97ed/raw/f16b938464b01a2e721567217f672f11dc4ef565/token.simple.jwt -s)
@@ -61,11 +66,13 @@ echo $token
 
 Then let's repeat the request but passing the token stored in `token` variable.
 
-[source, bash, subs="+macros,+attributes"]
-----
-curl -H "Authorization: Bearer $token" http://istio-ingressgateway-istio-system.{appdomain}/{path}
+:extrap: -H "Authorization: Bearer $token"
+include::curl_params.adoc[]
 
-customer => preference => recommendation v1 from 'b4d67bcb7-7rp88': 4
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+customer => preference => recommendation v1 from 'recommendation-v1-b4d67bcb7-7rp88': 4
 ----
 
 Now just change some part of the token and send the request again, you'll notice that request is refused.
@@ -82,6 +89,7 @@ Check xref:8mTLS.adoc[mTLS section] to learn more about mTLS and Istio.
 [#cleanup]
 == Clean Up
 
+[.console-input]
 [source, bash]
 ----
 kubectl delete -f istiofiles/enduser-authentication-jwt.yml

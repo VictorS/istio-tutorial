@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -16,18 +16,20 @@ spec:
       labels:
         app: recommendation
         version: v3
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
       - env:
         - name: JAVA_OPTIONS
           value: -Xms15m -Xmx15m -Xmn15m
-        image: quay.io/rhdevelopers/istio-tutorial-recommendation:v3
+        image: quay.io/rhdevelopers/istio-tutorial-recommendation:v3.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
             command:
             - curl
-            - localhost:8080/health
+            - localhost:8080/health/live
           initialDelaySeconds: 3
           periodSeconds: 1
           timeoutSeconds: 5
@@ -46,7 +48,7 @@ spec:
           exec:
             command:
             - curl
-            - localhost:8080/health
+            - localhost:8080/health/ready
           initialDelaySeconds: 3
           periodSeconds: 1
           timeoutSeconds: 5
